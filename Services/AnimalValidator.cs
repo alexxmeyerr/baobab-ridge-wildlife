@@ -1,3 +1,5 @@
+using System;
+
 namespace BaobabRidge.Services
 {
 
@@ -5,15 +7,18 @@ namespace BaobabRidge.Services
 
     public class ValidationError
     {
-        public AnimalField Field { get; private set; }
-        public string Message { get; private set; }
+        private AnimalField field;
+        private string message;
 
         // Stores which input failed and the explanation to show on the form.
         public ValidationError(AnimalField field, string message)
         {
-            Field = field;
-            Message = message;
+            this.field = field;
+            this.message = message;
         }
+
+        public AnimalField Field { get => field; }
+        public string Message { get => message; }
     }
 
     public static class AnimalValidator

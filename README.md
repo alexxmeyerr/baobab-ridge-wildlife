@@ -85,15 +85,18 @@ are separate steps, so do not run two copies against the same file at once.
 
 ## Straightforward C# style
 
-The application uses ordinary classes, brace-based namespaces, explicit variable
+The application uses private backing fields and properties like the lecturer's
+`Student` class, ordinary constructors, brace-based namespaces, explicit variable
 types, loops, `if/else` statements, and traditional `using` blocks. The ID check
 uses a loop instead of a regular expression. Classification sets two `out` string
-parameters instead of returning a tuple. File handling uses `File.ReadAllText`,
-`StringReader`, and `StreamWriter` with append enabled.
+parameters instead of returning a tuple. File handling follows the lecturer's examples: `FileStream`, `StreamReader`,
+`List<string>`, a `while` loop to read lines, a `foreach` loop to check IDs, and
+`StreamWriter` with `FileMode.Append`. Streams are enclosed in `using` blocks.
 
 The form layout uses normal control properties such as `Location`, `Size`, and
 `Text`, with named click handlers. `Tests/` is a separate verification program;
 start with the application files when preparing your presentation.
+See `CLASS-EXAMPLES.md` for the exact examples used and how they map to this project.
 
 Rebuilding may refresh the runtime data if `Data/animals.txt` becomes newer. Back up
 runtime records before intentionally changing the starter file.

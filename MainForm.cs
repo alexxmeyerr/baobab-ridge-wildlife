@@ -1,3 +1,7 @@
+using System;
+using System.Drawing;
+using System.IO;
+using System.Windows.Forms;
 using BaobabRidge.Services;
 
 namespace BaobabRidge
@@ -5,14 +9,15 @@ namespace BaobabRidge
 
     public partial class MainForm : Form
     {
-        private readonly FileManager fileManager;
+        private FileManager fileManager = new FileManager();
 
         // Member 2 can subscribe to this event to reload the grid after an animal is saved.
         public event EventHandler AnimalAdded;
 
         // Opens the form with the production file beside the executable.
-        public MainForm() : this(new FileManager())
+        public MainForm()
         {
+            InitializeComponent();
         }
 
         // Allows tests to use a temporary file without modifying the real animal records.
@@ -27,10 +32,19 @@ namespace BaobabRidge
         {
             errorProvider.Clear();
             lblFeedback.Text = "";
+
+            // Capture the values from the text boxes, as in the class form examples.
+            string animalId = txtAnimalId.Text;
+            string name = txtName.Text;
+            string species = txtSpecies.Text;
+            string age = txtAge.Text;
+            string recoveryScore = txtRecoveryScore.Text;
+
+            // Validate before converting numbers or writing anything to the file.
             Animal animal;
             ValidationError error;
-            if (!AnimalValidator.TryCreate(txtAnimalId.Text, txtName.Text, txtSpecies.Text,
-                txtAge.Text, txtRecoveryScore.Text, out animal, out error))
+            if (!AnimalValidator.TryCreate(animalId, name, species,
+                age, recoveryScore, out animal, out error))
             {
                 ShowValidationError(error);
                 return;

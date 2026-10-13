@@ -99,16 +99,18 @@ the executable with Copy if newer. Do not commit runtime `summary.txt`.
 2. `AnimalClassifier.cs`: a single `if/else if/else` chain selects the score band.
 3. `AnimalValidator.cs`: check the ID, name, species, age, and score one at a time.
    A failed check creates a `ValidationError` object and returns `false` immediately.
-4. `FileManager.cs`: read the text, scan the IDs with a `while` loop, then use a
-   `StreamWriter` to add one line to the end.
+4. `FileManager.cs`: use `FileStream` and `StreamReader` to read lines into a
+   `List<string>`. Scan IDs with `foreach`, then use `FileMode.Append` and
+   `StreamWriter` to add one record.
 5. `MainForm.cs`: the Add click handler validates, saves inside `try/catch`, then
    displays the result and clears the inputs. A normal `if/else` chain picks the
    input that needs focus after a validation error.
 
 The file code is deliberately written for one running application instance. Two
-copies could both check an ID before either saves it. The earlier exclusive-stream
-implementation handled that extra scenario; this version uses the simpler file
-methods from the lecture material. It still handles locked and read-only files.
+copies could both check an ID before either saves it. The `Read` and append operations
+are separate, following the lecture examples. It still handles locked and read-only
+files. See `CLASS-EXAMPLES.md` for the source examples and the assignment-specific
+checks retained in this rewrite.
 
 ## Git handoff
 
