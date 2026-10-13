@@ -1,66 +1,102 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Text;
 
 namespace BaobabRidge.Services
 {
-
     public class FileManager
     {
-        public string AnimalsPath { get; private set; }
+        private string path;
 
-        // Uses the executable folder normally, or a separate path for testing.
-        public FileManager(string animalsPath = null)
+        // Keep the data beside the executable when the application is run.
+        public FileManager()
+        {
+            path = Path.Combine(AppContext.BaseDirectory, "animals.txt");
+        }
+
+        // A separate path lets the tests use disposable files.
+        public FileManager(string animalsPath)
         {
             if (animalsPath == null)
             {
-                AnimalsPath = Path.Combine(AppContext.BaseDirectory, "animals.txt");
+                path = Path.Combine(AppContext.BaseDirectory, "animals.txt");
             }
             else
             {
-                AnimalsPath = animalsPath;
+                path = animalsPath;
             }
         }
 
-        // Reads the current file, rejects a duplicate ID, and appends one new record.
-        // The form catches file exceptions and shows a friendly message.
-        public bool TryAppend(Animal animal)
-        {
-            string existingText = "";
-            if (File.Exists(AnimalsPath))
-            {
-                existingText = File.ReadAllText(AnimalsPath, Encoding.UTF8);
-            }
+        public string AnimalsPath { get => path; }
 
-            // StringReader reads the saved text one line at a time, including different line endings.
-            using (StringReader reader = new StringReader(existingText))
+        // Read lines into a list, as in the lecturer's ReadWrite example.
+        // A missing file has no records; the append operation will create it.
+        private List<string> Read(out bool needsNewLine)
+        {
+            List<string> lines = new List<string>();
+            needsNewLine = false;
+
+            if (File.Exists(path))
             {
-                string line;
-                while ((line = reader.ReadLine()) != null)
+                using (FileStream fs = new FileStream(path, FileMode.Open, FileAccess.Read))
+                using (StreamReader sr = new StreamReader(fs, Encoding.UTF8))
                 {
-                    string[] fields = line.Split('|');
-                    string existingId = fields[0].Trim().ToUpperInvariant();
-                    // Reserve the ID even if the rest of an existing record is malformed.
-                    if (existingId == animal.AnimalId)
+                    string text;
+                    while ((text = sr.ReadLine()) != null)
                     {
-                        return false;
+                        lines.Add(text);
+                    }
+
+                    // A hand-edited file may not end with Enter. Check its last byte
+                    // so the next animal is written on a new line. UTF-8 uses 10 for
+                    // line feed and 13 for carriage return. Ignore an empty/BOM-only file.
+                    if (lines.Count > 0)
+                    {
+                        fs.Seek(-1, SeekOrigin.End);
+                        int lastByte = fs.ReadByte();
+                        needsNewLine = lastByte != 10 && lastByte != 13;
                     }
                 }
             }
+            return lines;
+        }
 
-            // true means append: StreamWriter leaves the existing file contents untouched.
-            using (StreamWriter writer = new StreamWriter(AnimalsPath, true, new UTF8Encoding(false)))
+        // Check the saved IDs and append only the new animal.
+        // The form catches file errors and keeps the user's input for a retry.
+        public bool TryAppend(Animal animal)
+        {
+            bool needsNewLine;
+            List<string> lines = Read(out needsNewLine);
+
+            foreach (string text in lines)
             {
-                // Start a separate record if the old final line has no line ending.
-                if (existingText.Length > 0 && !existingText.EndsWith("\n") && !existingText.EndsWith("\r"))
+                string[] fields = text.Split('|');
+                string existingId = fields[0].Trim().ToUpperInvariant();
+                // Reserve an ID even if the other fields in its line are malformed.
+                if (existingId == animal.AnimalId)
                 {
-                    writer.WriteLine();
+                    return false;
                 }
-                writer.WriteLine(Serialize(animal));
+            }
+
+            // Append preserves old records. Create would overwrite them.
+            // using closes both streams even if writing throws an exception.
+            using (FileStream fs = new FileStream(path, FileMode.Append, FileAccess.Write))
+            using (StreamWriter sw = new StreamWriter(fs, new UTF8Encoding(false)))
+            {
+                if (needsNewLine)
+                {
+                    sw.WriteLine();
+                }
+                string text = Serialize(animal);
+                sw.WriteLine(text);
             }
             return true;
         }
 
-        // Joins the seven fields in the exact order required by animals.txt.
+        // Build one record by joining the seven fields with the required delimiter.
         public static string Serialize(Animal animal)
         {
             return animal.AnimalId + "|" + animal.Name + "|" + animal.Species + "|"
