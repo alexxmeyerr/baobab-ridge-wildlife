@@ -169,7 +169,6 @@ namespace BaobabRidge
     {
         CreateAnimalColumns();
         ConfigureAnimalsGrid();
-    
         dgvAnimals.Rows.Clear();
 
         if (!File.Exists(fileManager.AnimalsPath))
@@ -271,6 +270,11 @@ namespace BaobabRidge
         dgvAnimals.Columns.Add("RecoveryScore", "Recovery Score");
         dgvAnimals.Columns.Add("Status", "Status");
         dgvAnimals.Columns.Add("HousingUnit", "Housing Unit");
+    }
+
+    private void OnAnimalAdded()
+    {
+        AnimalAdded?.Invoke(this, EventArgs.Empty);
     }
 
 }
