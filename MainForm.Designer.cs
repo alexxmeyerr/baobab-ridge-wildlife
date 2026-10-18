@@ -26,6 +26,7 @@ namespace BaobabRidge
         private Label lblHousingTitle;
         private Label lblHousingValue;
         private ErrorProvider errorProvider;
+        private DataGridView dgvAnimals;
 
         // Releases the components when the form closes.
         protected override void Dispose(bool disposing)
@@ -60,8 +61,27 @@ namespace BaobabRidge
             lblHousingTitle = new Label();
             lblHousingValue = new Label();
             errorProvider = new ErrorProvider(components);
+            dgvAnimals = new DataGridView();
+            ((System.ComponentModel.ISupportInitialize)dgvAnimals).BeginInit();
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             SuspendLayout();
+
+            // dgvAnimals
+            dgvAnimals.Name = "dgvAnimals";
+            dgvAnimals.Location = new Point(24, 610);
+            dgvAnimals.Size = new Size(580, 220);
+            dgvAnimals.Anchor = AnchorStyles.Top
+                | AnchorStyles.Left
+                | AnchorStyles.Right;
+            dgvAnimals.ReadOnly = true;
+            dgvAnimals.AllowUserToAddRows = false;
+            dgvAnimals.AllowUserToDeleteRows = false;
+            dgvAnimals.AutoSizeColumnsMode =
+                DataGridViewAutoSizeColumnsMode.Fill;
+            dgvAnimals.SelectionMode =
+                DataGridViewSelectionMode.FullRowSelect;
+            dgvAnimals.MultiSelect = false;
+            dgvAnimals.RowHeadersVisible = false;
 
             // lblHeading
             lblHeading.Name = "lblHeading";
@@ -203,8 +223,8 @@ namespace BaobabRidge
             errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             AutoScaleDimensions = new SizeF(7, 15);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(640, 590);
-            MinimumSize = new Size(656, 629);
+            ClientSize = new Size(640, 860);
+            MinimumSize = new Size(656, 899);
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Baobab Ridge - Add Animal";
             AcceptButton = btnAdd;
@@ -226,6 +246,8 @@ namespace BaobabRidge
             Controls.Add(lblStatusValue);
             Controls.Add(lblHousingTitle);
             Controls.Add(lblHousingValue);
+            Controls.Add(dgvAnimals);
+            ((System.ComponentModel.ISupportInitialize)dgvAnimals).EndInit();
             ((System.ComponentModel.ISupportInitialize)errorProvider).EndInit();
             ResumeLayout(false);
             PerformLayout();
