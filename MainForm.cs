@@ -25,6 +25,12 @@ namespace BaobabRidge
         {
             this.fileManager = fileManager;
             InitializeComponent();
+
+            // It Load animals when the form opens
+            LoadAnimals();
+            
+            // It refreshes grid whenever a new animal is added
+            this.AnimalAdded += (s, e) => LoadAnimals();
         }
 
         // Validates, checks uniqueness, saves the animal, and reports its classification.
@@ -152,5 +158,67 @@ namespace BaobabRidge
                 AnimalAdded(this, EventArgs.Empty);
             }
         }
+
+        // View Animals 
+    private void LoadAnimals()
+    {
+        dgvAnimals.Rows.Clear();
+        int skipped = 0;
+
+    try
+    {
+        var animals = fileManager.TryLoadAll(out skipped);
+
+        foreach (var animal in animals)
+        {
+            dgvAnimals.Rows.Add(
+                animal.AnimalId,
+                animal.Name,
+                animal.Species,
+                animal.Age,
+                animal.RecoveryScore,
+                animal.Status,
+                animal.HousingUnit
+            );
+        }
+
+        if (skipped > 0)
+        {
+            MessageBox.Show(
+                $"{skipped} malformed records skipped.",
+                "File Load Warning",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
+            );
+        }
     }
+    catch (FileNotFoundException)
+    {
+        MessageBox.Show(
+            "animals.txt was not found. Please check the file location.",
+            "File Not Found",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning
+        );
+    }
+    catch (UnauthorizedAccessException)
+    {
+        MessageBox.Show(
+            "You do not have permission to read animals.txt.",
+            "File Access Error",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error
+        );
+    }
+    catch (IOException)
+    {
+        MessageBox.Show(
+            "Unable to read animals.txt. Check that the file is not being used by another program.",
+            "File Error",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error
+        );
+    }
+}
+}
 }
