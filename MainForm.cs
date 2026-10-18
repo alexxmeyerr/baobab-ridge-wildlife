@@ -171,6 +171,19 @@ namespace BaobabRidge
         ConfigureAnimalsGrid();
     
         dgvAnimals.Rows.Clear();
+
+        if (!File.Exists(fileManager.AnimalsPath))
+            {
+                MessageBox.Show(
+                "animals.txt was not found. The animal list is currently empty.",
+                "File Not Found",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
+                );
+
+                return;
+            }
+
         int skipped = 0;
 
     try
