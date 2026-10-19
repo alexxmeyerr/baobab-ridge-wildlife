@@ -21,12 +21,23 @@ namespace BaobabRidge
             InitializeComponent();
             InitializeMember3Feature();
         }
+        
+        //it ensures that the form loads animals when it opens
+        public MainForm() : this(new FileManager())
+        {
+        }
 
         // Allows tests to use a temporary file without modifying the real animal records.
         public MainForm(FileManager fileManager)
         {
             this.fileManager = fileManager;
             InitializeComponent();
+
+            // It Load animals when the form opens
+            LoadAnimals();
+            
+            // It refreshes grid whenever a new animal is added
+            this.AnimalAdded += (s, e) => LoadAnimals();
             InitializeMember3Feature();
         }
 
@@ -159,6 +170,62 @@ namespace BaobabRidge
             }
         }
 
+        // View Animals 
+    private void LoadAnimals()
+    {
+        CreateAnimalColumns();
+        ConfigureAnimalsGrid();
+        dgvAnimals.Rows.Clear();
+
+        if (!File.Exists(fileManager.AnimalsPath))
+            {
+                MessageBox.Show(
+                "animals.txt was not found. The animal list is currently empty.",
+                "File Not Found",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
+                );
+
+                return;
+            }
+
+        int skipped = 0;
+
+    try
+    {
+        var animals = fileManager.TryLoadAll(out skipped);
+
+        foreach (var animal in animals)
+        {
+            dgvAnimals.Rows.Add(
+                animal.AnimalId,
+                animal.Name,
+                animal.Species,
+                animal.Age,
+                animal.RecoveryScore,
+                animal.Status,
+                animal.HousingUnit
+            );
+        }
+
+        if (skipped > 0)
+        {
+            MessageBox.Show(
+                $"{skipped} malformed records skipped.",
+                "File Load Warning",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning
+            );
+        }
+    }
+    catch (FileNotFoundException)
+    {
+        MessageBox.Show(
+            "animals.txt was not found. Please check the file location.",
+            "File Not Found",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Warning
+        );
         // Member 2 subscribes here once to refresh after any successful file change.
         protected virtual void OnAnimalsChanged()
         {
@@ -168,4 +235,61 @@ namespace BaobabRidge
             }
         }
     }
+    catch (UnauthorizedAccessException)
+    {
+        MessageBox.Show(
+            "You do not have permission to read animals.txt.",
+            "File Access Error",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error
+        );
+    }
+    catch (IOException)
+    {
+        MessageBox.Show(
+            "Unable to read animals.txt. Check that the file is not being used by another program.",
+            "File Error",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error
+        );
+    }
+}
+    // Configuring the DataGridView.
+    private void ConfigureAnimalsGrid()
+    {
+        dgvAnimals.ReadOnly = true;
+        dgvAnimals.AllowUserToAddRows = false;
+        dgvAnimals.AllowUserToDeleteRows = false;
+
+        dgvAnimals.SelectionMode =
+            DataGridViewSelectionMode.FullRowSelect;
+
+        dgvAnimals.MultiSelect = false;
+
+        dgvAnimals.AutoSizeColumnsMode =
+            DataGridViewAutoSizeColumnsMode.Fill;
+
+        dgvAnimals.RowHeadersVisible = false;
+    }
+
+    private void CreateAnimalColumns()
+    {
+        if (dgvAnimals.Columns.Count > 0)
+            return;
+
+        dgvAnimals.Columns.Add("AnimalId", "Animal ID");
+        dgvAnimals.Columns.Add("Name", "Name");
+        dgvAnimals.Columns.Add("Species", "Species");
+        dgvAnimals.Columns.Add("Age", "Age");
+        dgvAnimals.Columns.Add("RecoveryScore", "Recovery Score");
+        dgvAnimals.Columns.Add("Status", "Status");
+        dgvAnimals.Columns.Add("HousingUnit", "Housing Unit");
+    }
+
+    private void OnAnimalAdded()
+    {
+        AnimalAdded?.Invoke(this, EventArgs.Empty);
+    }
+
+}
 }

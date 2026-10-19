@@ -104,5 +104,47 @@ namespace BaobabRidge.Services
                 + animal.RecoveryScore.ToString(CultureInfo.InvariantCulture) + "|"
                 + animal.Status + "|" + animal.HousingUnit;
         }
+        
+    
+public List<Animal> TryLoadAll(out int skipped)
+{
+    List<Animal> animals = new List<Animal>();
+    skipped = 0;
+
+    List<string> lines = Read(out _);
+
+    foreach (string line in lines)
+    {
+        string[] fields = line.Split('|');
+
+        
+        if (fields.Length != 7)
+        {
+            skipped++;
+            continue;
+        }
+
+        Animal animal;
+        ValidationError error;
+
+        if (!AnimalValidator.TryCreate(
+            fields[0],
+            fields[1],
+            fields[2],
+            fields[3],
+            fields[4],
+            out animal,
+            out error))
+        {
+            skipped++;
+            continue;
+        }
+
+        animals.Add(animal);
+    }
+
+    return animals;
+}
+
     }
 }
