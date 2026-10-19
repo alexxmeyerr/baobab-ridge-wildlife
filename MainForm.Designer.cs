@@ -20,6 +20,9 @@ namespace BaobabRidge
         private TextBox txtRecoveryScore;
         private Button btnAdd;
         private Button btnClear;
+        private Button btnSearch;
+        private Button btnSaveChanges;
+        private Button btnDelete;
         private Label lblFeedback;
         private Label lblStatusTitle;
         private Label lblStatusValue;
@@ -55,6 +58,9 @@ namespace BaobabRidge
             txtRecoveryScore = new TextBox();
             btnAdd = new Button();
             btnClear = new Button();
+            btnSearch = new Button();
+            btnSaveChanges = new Button();
+            btnDelete = new Button();
             lblFeedback = new Label();
             lblStatusTitle = new Label();
             lblStatusValue = new Label();
@@ -85,7 +91,7 @@ namespace BaobabRidge
 
             // lblHeading
             lblHeading.Name = "lblHeading";
-            lblHeading.Text = "Baobab Ridge\nAdd an animal";
+            lblHeading.Text = "Baobab Ridge\nAnimal records";
             lblHeading.Location = new Point(24, 20);
             lblHeading.Size = new Size(560, 65);
             lblHeading.Font = new Font("Segoe UI", 17, FontStyle.Bold);
@@ -101,8 +107,7 @@ namespace BaobabRidge
             // txtAnimalId
             txtAnimalId.Name = "txtAnimalId";
             txtAnimalId.Location = new Point(190, 105);
-            txtAnimalId.Size = new Size(410, 25);
-            txtAnimalId.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtAnimalId.Size = new Size(280, 25);
             txtAnimalId.TabIndex = 1;
             txtAnimalId.AccessibleName = "Animal ID";
             txtAnimalId.PlaceholderText = "WR-0007";
@@ -187,36 +192,58 @@ namespace BaobabRidge
             btnClear.TabIndex = 11;
 
             btnClear.Click += btnClear_Click;
+
+            // Search uses the shared ID field; Save and Delete become available in Edit Mode.
+            btnSearch.Name = "btnSearch";
+            btnSearch.Text = "&Search";
+            btnSearch.Location = new Point(480, 102);
+            btnSearch.Size = new Size(120, 30);
+            btnSearch.TabIndex = 2;
+            btnSearch.Click += btnSearch_Click;
+            btnSaveChanges.Name = "btnSaveChanges";
+            btnSaveChanges.Text = "Sa&ve Changes";
+            btnSaveChanges.Location = new Point(190, 390);
+            btnSaveChanges.Size = new Size(150, 38);
+            btnSaveChanges.TabIndex = 12;
+            btnSaveChanges.Enabled = false;
+            btnSaveChanges.Click += btnSaveChanges_Click;
+            btnDelete.Name = "btnDelete";
+            btnDelete.Text = "&Delete Animal";
+            btnDelete.Location = new Point(350, 390);
+            btnDelete.Size = new Size(150, 38);
+            btnDelete.TabIndex = 13;
+            btnDelete.Enabled = false;
+            btnDelete.Click += btnDelete_Click;
             // lblFeedback
             lblFeedback.Name = "lblFeedback";
             lblFeedback.Text = "Enter the animal's details, then select Add Animal.";
-            lblFeedback.Location = new Point(24, 395);
+            lblFeedback.Location = new Point(24, 445);
             lblFeedback.Size = new Size(580, 75);
             lblFeedback.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             lblFeedback.AccessibleName = "Save result";
 
             // lblStatusTitle
             lblStatusTitle.Name = "lblStatusTitle";
-            lblStatusTitle.Text = "Last saved status";
-            lblStatusTitle.Location = new Point(24, 480);
+            lblStatusTitle.Text = "Animal status";
+            lblStatusTitle.Location = new Point(24, 530);
             lblStatusTitle.Size = new Size(155, 30);
 
             // lblStatusValue
             lblStatusValue.Name = "lblStatusValue";
             lblStatusValue.Text = "-";
-            lblStatusValue.Location = new Point(190, 480);
+            lblStatusValue.Location = new Point(190, 530);
             lblStatusValue.Size = new Size(410, 30);
 
             // lblHousingTitle
             lblHousingTitle.Name = "lblHousingTitle";
             lblHousingTitle.Text = "Housing unit";
-            lblHousingTitle.Location = new Point(24, 520);
+            lblHousingTitle.Location = new Point(24, 570);
             lblHousingTitle.Size = new Size(155, 30);
 
             // lblHousingValue
             lblHousingValue.Name = "lblHousingValue";
             lblHousingValue.Text = "-";
-            lblHousingValue.Location = new Point(190, 520);
+            lblHousingValue.Location = new Point(190, 570);
             lblHousingValue.Size = new Size(410, 30);
 
             errorProvider.ContainerControl = this;
@@ -226,7 +253,7 @@ namespace BaobabRidge
             ClientSize = new Size(640, 860);
             MinimumSize = new Size(656, 899);
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Baobab Ridge - Add Animal";
+            Text = "Baobab Ridge - Animal Records";
             AcceptButton = btnAdd;
             Controls.Add(lblHeading);
             Controls.Add(lblAnimalId);
@@ -241,6 +268,9 @@ namespace BaobabRidge
             Controls.Add(txtRecoveryScore);
             Controls.Add(btnAdd);
             Controls.Add(btnClear);
+            Controls.Add(btnSearch);
+            Controls.Add(btnSaveChanges);
+            Controls.Add(btnDelete);
             Controls.Add(lblFeedback);
             Controls.Add(lblStatusTitle);
             Controls.Add(lblStatusValue);

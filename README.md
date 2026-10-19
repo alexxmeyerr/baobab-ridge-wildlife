@@ -73,10 +73,11 @@ It briefly opens a test form and uses temporary data rather than your saved reco
 
 ## Integration and limitations
 
-View, Update/Delete, Summary, and starter records remain the other members' work.
-No DataGridView is included yet. See `MEMBER1.md` for the refresh connection and
-shared validation contract. The Add UI layout is constructed in code in
-`MainForm.Designer.cs`.
+Add and Member 3's Update/Delete now share `MainForm`, the `Animal` model,
+validation, classification, and one runtime file. View, Summary, and starter
+records remain to be integrated. No DataGridView is included yet. See
+`INTEGRATION.md` for the combined workflow and Member 2's refresh connection.
+The UI layout is constructed in code in `MainForm.Designer.cs`.
 
 The uniqueness scan reserves IDs even in malformed existing lines. Member 2 should
 handle malformed loading and report the skipped-line count. This simpler version

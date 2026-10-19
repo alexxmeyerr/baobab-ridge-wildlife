@@ -4,7 +4,7 @@ using BaobabRidge.Services;
 
 namespace BaobabRidge.Tests;
 
-internal static class Program
+internal static partial class Program
 {
     private static int assertions;
 
@@ -12,15 +12,17 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
-        string directory = Path.Combine(Path.GetTempPath(), "BaobabRidgeTests-" + Guid.NewGuid());
+        string directory = Path.Combine(AppContext.BaseDirectory, "BaobabRidgeTests-" + Guid.NewGuid());
         Directory.CreateDirectory(directory);
         try
         {
             TestValidation();
             TestClassification();
             TestFiles(directory);
+            TestUpdateDeleteFiles(directory);
             Application.EnableVisualStyles();
             TestForm(directory, args.FirstOrDefault());
+            TestUpdateDeleteForm(directory, args.FirstOrDefault());
             Console.WriteLine($"PASS: {assertions} assertions (validation, classification, files, and form workflow).");
             return 0;
         }

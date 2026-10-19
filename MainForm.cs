@@ -13,11 +13,13 @@ namespace BaobabRidge
 
         // Member 2 can subscribe to this event to reload the grid after an animal is saved.
         public event EventHandler AnimalAdded;
+        public event EventHandler AnimalsChanged;
 
         // Opens the form with the production file beside the executable.
         public MainForm()
         {
             InitializeComponent();
+            InitializeMember3Feature();
         }
         
         //it ensures that the form loads animals when it opens
@@ -36,11 +38,13 @@ namespace BaobabRidge
             
             // It refreshes grid whenever a new animal is added
             this.AnimalAdded += (s, e) => LoadAnimals();
+            InitializeMember3Feature();
         }
 
         // Validates, checks uniqueness, saves the animal, and reports its classification.
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            if (editMode) return;
             errorProvider.Clear();
             lblFeedback.Text = "";
 
@@ -93,6 +97,7 @@ namespace BaobabRidge
             ClearInputs();
             // Notify the future View feature only after the append has completed successfully.
             OnAnimalAdded();
+            OnAnimalsChanged();
         }
 
         // Connects a field-specific message to its input and returns keyboard focus there.
@@ -147,6 +152,7 @@ namespace BaobabRidge
         // Clears all input, validation errors, and previous confirmation details.
         private void btnClear_Click(object sender, EventArgs e)
         {
+            SetEditMode(false);
             errorProvider.Clear();
             lblFeedback.Text = "Enter the animal's details, then select Add Animal.";
             lblFeedback.ForeColor = SystemColors.ControlText;
@@ -220,6 +226,14 @@ namespace BaobabRidge
             MessageBoxButtons.OK,
             MessageBoxIcon.Warning
         );
+        // Member 2 subscribes here once to refresh after any successful file change.
+        protected virtual void OnAnimalsChanged()
+        {
+            if (AnimalsChanged != null)
+            {
+                AnimalsChanged(this, EventArgs.Empty);
+            }
+        }
     }
     catch (UnauthorizedAccessException)
     {
