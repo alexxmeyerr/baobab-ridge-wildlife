@@ -178,17 +178,38 @@ namespace BaobabRidge
         ConfigureAnimalsGrid();
         dgvAnimals.Rows.Clear();
 
-        if (!File.Exists(fileManager.AnimalsPath))
-            {
-                MessageBox.Show(
-                "animals.txt was not found. The animal list is currently empty.",
-                "File Not Found",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Warning
-                );
+        
+if (!File.Exists(fileManager.AnimalsPath))
+{
+    try
+    {
+        string directory =
+            Path.GetDirectoryName(fileManager.AnimalsPath);
 
-                return;
-            }
+        if (!string.IsNullOrEmpty(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        using (File.Create(fileManager.AnimalsPath))
+        {
+            // Create an empty animals.txt file.
+        }
+    }
+    catch (UnauthorizedAccessException)
+    {
+        ShowFileError(
+            "Cannot create animals.txt. Check your folder permissions.");
+        return;
+    }
+    catch (IOException)
+    {
+        ShowFileError(
+            "Cannot create animals.txt. Check the file location.");
+        return;
+    }
+}
+
 
         int skipped = 0;
 
@@ -219,23 +240,23 @@ namespace BaobabRidge
             );
         }
     }
+
     catch (FileNotFoundException)
     {
-        MessageBox.Show(
-            "animals.txt was not found. Please check the file location.",
-            "File Not Found",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Warning
-        );
-        // Member 2 subscribes here once to refresh after any successful file change.
-        protected virtual void OnAnimalsChanged()
-        {
-            if (AnimalsChanged != null)
-            {
-                AnimalsChanged(this, EventArgs.Empty);
-            }
-        }
+        ShowFileError(
+        "animals.txt was not found. Please check the file location.");
     }
+    catch (UnauthorizedAccessException)
+    {
+        ShowFileError(
+        "You do not have permission to read animals.txt.");
+    }
+    catch (IOException)
+    {
+        ShowFileError(
+        "Unable to read animals.txt. Check the file location.");
+    }
+
     catch (UnauthorizedAccessException)
     {
         MessageBox.Show(
