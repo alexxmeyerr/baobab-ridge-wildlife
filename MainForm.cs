@@ -38,6 +38,7 @@ namespace BaobabRidge
             
             // It refreshes grid whenever a new animal is added
             this.AnimalAdded += (s, e) => LoadAnimals();
+            this.AnimalsChanged += (s, e) => LoadAnimals();
             InitializeMember3Feature();
         }
 
