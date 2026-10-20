@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
@@ -11,7 +12,7 @@ namespace BaobabRidge
     {
         private FileManager fileManager = new FileManager();
 
-        // Member 2 can subscribe to this event to reload the grid after an animal is saved.
+        // Kept for existing Add subscribers; the grid uses AnimalsChanged for all mutations.
         public event EventHandler AnimalAdded;
         public event EventHandler AnimalsChanged;
 
@@ -26,12 +27,9 @@ namespace BaobabRidge
             this.fileManager = fileManager;
             InitializeComponent();
 
-            // It Load animals when the form opens
-            LoadAnimals();
-            
-            // It refreshes grid whenever a new animal is added
-            this.AnimalAdded += (s, e) => LoadAnimals();
             InitializeMember3Feature();
+            AnimalsChanged += ReloadAnimals;
+            LoadAnimals();
         }
 
         // Validates, checks uniqueness, saves the animal, and reports its classification.
@@ -88,7 +86,7 @@ namespace BaobabRidge
             lblStatusValue.Text = animal.Status;
             lblHousingValue.Text = animal.HousingUnit;
             ClearInputs();
-            // Notify the future View feature only after the append has completed successfully.
+            // Publish events only after the append has completed successfully.
             OnAnimalAdded();
             OnAnimalsChanged();
         }
@@ -134,6 +132,8 @@ namespace BaobabRidge
         // Resets the input fields after a successful add without removing the confirmation.
         private void ClearInputs()
         {
+            dgvAnimals.ClearSelection();
+            dgvAnimals.CurrentCell = null;
             txtAnimalId.Clear();
             txtName.Clear();
             txtSpecies.Clear();
@@ -154,36 +154,31 @@ namespace BaobabRidge
             ClearInputs();
         }
 
+        // Reads current records, displays the report, and overwrites summary.txt.
         private void btnSummaryReport_Click(object sender, EventArgs e)
         {
             try
             {
-                List<Animal> animals = fileManager.TryLoadAll(out int skipped);
+                int skipped;
+                List<Animal> animals = fileManager.TryLoadAll(out skipped);
                 SummaryReport report = SummaryReportService.Create(animals);
+                txtSummaryReport.Text = report.ToText();
                 SummaryReportService.Save(report, fileManager.SummaryPath);
-
-                string message = report.ToText() + Environment.NewLine + Environment.NewLine
-                    + "Saved to: " + fileManager.SummaryPath;
-                if (skipped > 0)
-                {
-                    message += Environment.NewLine + Environment.NewLine
-                        + skipped + " malformed record(s) were excluded.";
-                }
-
-                MessageBox.Show(this, message, "Animal Rehabilitation Summary",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                lblFeedback.ForeColor = Color.FromArgb(28, 94, 56);
+                lblFeedback.Text = "Summary saved to: " + fileManager.SummaryPath;
+                lblLoadInfo.Text = skipped + " malformed record(s) excluded from this report.";
             }
             catch (UnauthorizedAccessException)
             {
-                ShowFileError("Cannot save summary.txt. Check file permissions.");
+                ShowFileError("Cannot read animals.txt or save summary.txt. Check file permissions.");
             }
             catch (DirectoryNotFoundException)
             {
-                ShowFileError("Cannot find the folder for summary.txt.");
+                ShowFileError("Cannot find the data folder. Restore the application folder and try again.");
             }
             catch (IOException)
             {
-                ShowFileError("Cannot save summary.txt. Close any program locking the file and try again.");
+                ShowFileError("Cannot generate the report. Close any program locking the files and try again.");
             }
         }
 
@@ -196,122 +191,84 @@ namespace BaobabRidge
             }
         }
 
-        // View Animals 
-    private void LoadAnimals()
-    {
-        CreateAnimalColumns();
-        ConfigureAnimalsGrid();
-        dgvAnimals.Rows.Clear();
+        // Reloads once after a successful add, update, or delete.
+        private void ReloadAnimals(object sender, EventArgs e)
+        {
+            LoadAnimals();
+        }
 
-        if (!File.Exists(fileManager.AnimalsPath))
+        // Creates a missing file and lists valid records in their original file order.
+        private void LoadAnimals()
+        {
+            CreateAnimalColumns();
+            ConfigureAnimalsGrid();
+            dgvAnimals.Rows.Clear();
+            try
             {
-                MessageBox.Show(
-                "animals.txt was not found. The animal list is currently empty.",
-                "File Not Found",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Warning
-                );
-
-                return;
+                fileManager.EnsureFileExists();
+                int skipped;
+                List<Animal> animals = fileManager.TryLoadAll(out skipped);
+                foreach (Animal animal in animals)
+                {
+                    dgvAnimals.Rows.Add(animal.AnimalId, animal.Name, animal.Species,
+                        animal.Age, animal.RecoveryScore, animal.Status, animal.HousingUnit);
+                }
+                dgvAnimals.ClearSelection();
+                dgvAnimals.CurrentCell = null;
+                lblLoadInfo.Text = skipped == 0 ? "Select an animal row to edit or delete it."
+                    : skipped + " malformed record(s) skipped when loading animals.txt.";
             }
-
-        int skipped = 0;
-
-    try
-    {
-        var animals = fileManager.TryLoadAll(out skipped);
-
-        foreach (var animal in animals)
-        {
-            dgvAnimals.Rows.Add(
-                animal.AnimalId,
-                animal.Name,
-                animal.Species,
-                animal.Age,
-                animal.RecoveryScore,
-                animal.Status,
-                animal.HousingUnit
-            );
+            catch (UnauthorizedAccessException)
+            {
+                ShowFileError("Cannot load animals.txt. Check file and folder permissions.");
+            }
+            catch (IOException)
+            {
+                ShowFileError("Cannot load animals.txt. Check the folder and close any program locking the file.");
+            }
         }
 
-        if (skipped > 0)
+        // Stops users changing cells, adding rows, deleting rows, or sorting file order.
+        private void ConfigureAnimalsGrid()
         {
-            MessageBox.Show(
-                $"{skipped} malformed records skipped.",
-                "File Load Warning",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Warning
-            );
+            dgvAnimals.ReadOnly = true;
+            dgvAnimals.AllowUserToAddRows = false;
+            dgvAnimals.AllowUserToDeleteRows = false;
+            dgvAnimals.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvAnimals.MultiSelect = false;
+            dgvAnimals.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvAnimals.RowHeadersVisible = false;
+            foreach (DataGridViewColumn column in dgvAnimals.Columns)
+            {
+                column.SortMode = DataGridViewColumnSortMode.NotSortable;
+            }
+        }
+
+        // Adds the seven file fields as grid columns once.
+        private void CreateAnimalColumns()
+        {
+            if (dgvAnimals.Columns.Count > 0) return;
+            dgvAnimals.Columns.Add("AnimalId", "Animal ID");
+            dgvAnimals.Columns.Add("Name", "Name");
+            dgvAnimals.Columns.Add("Species", "Species");
+            dgvAnimals.Columns.Add("Age", "Age");
+            dgvAnimals.Columns.Add("RecoveryScore", "Recovery Score");
+            dgvAnimals.Columns.Add("Status", "Status");
+            dgvAnimals.Columns.Add("HousingUnit", "Housing Unit");
+        }
+
+        // A row click uses the same search and edit workflow as the Search button.
+        private void dgvAnimals_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            string animalId = Convert.ToString(dgvAnimals.Rows[e.RowIndex].Cells[0].Value);
+            FindAndLoadAnimal(animalId);
+        }
+
+        // Notifies subscribers only after a file mutation has succeeded.
+        protected virtual void OnAnimalsChanged()
+        {
+            if (AnimalsChanged != null) AnimalsChanged(this, EventArgs.Empty);
         }
     }
-    catch (FileNotFoundException)
-    {
-        MessageBox.Show(
-            "animals.txt was not found. Please check the file location.",
-            "File Not Found",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Warning
-        );
-        // Member 2 subscribes here once to refresh after any successful file change.
-    }
-    catch (UnauthorizedAccessException)
-    {
-        MessageBox.Show(
-            "You do not have permission to read animals.txt.",
-            "File Access Error",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Error
-        );
-    }
-    catch (IOException)
-    {
-        MessageBox.Show(
-            "Unable to read animals.txt. Check that the file is not being used by another program.",
-            "File Error",
-            MessageBoxButtons.OK,
-            MessageBoxIcon.Error
-        );
-    }
-}
-    // Configuring the DataGridView.
-    private void ConfigureAnimalsGrid()
-    {
-        dgvAnimals.ReadOnly = true;
-        dgvAnimals.AllowUserToAddRows = false;
-        dgvAnimals.AllowUserToDeleteRows = false;
-
-        dgvAnimals.SelectionMode =
-            DataGridViewSelectionMode.FullRowSelect;
-
-        dgvAnimals.MultiSelect = false;
-
-        dgvAnimals.AutoSizeColumnsMode =
-            DataGridViewAutoSizeColumnsMode.Fill;
-
-        dgvAnimals.RowHeadersVisible = false;
-    }
-
-    private void CreateAnimalColumns()
-    {
-        if (dgvAnimals.Columns.Count > 0)
-            return;
-
-        dgvAnimals.Columns.Add("AnimalId", "Animal ID");
-        dgvAnimals.Columns.Add("Name", "Name");
-        dgvAnimals.Columns.Add("Species", "Species");
-        dgvAnimals.Columns.Add("Age", "Age");
-        dgvAnimals.Columns.Add("RecoveryScore", "Recovery Score");
-        dgvAnimals.Columns.Add("Status", "Status");
-        dgvAnimals.Columns.Add("HousingUnit", "Housing Unit");
-    }
-
-    protected virtual void OnAnimalsChanged()
-    {
-        if (AnimalsChanged != null)
-        {
-            AnimalsChanged(this, EventArgs.Empty);
-        }
-    }
-
-}
 }

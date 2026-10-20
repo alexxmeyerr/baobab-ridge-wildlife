@@ -31,6 +31,8 @@ namespace BaobabRidge
         private Label lblHousingValue;
         private ErrorProvider errorProvider;
         private DataGridView dgvAnimals;
+        private TextBox txtSummaryReport;
+        private Label lblLoadInfo;
 
         // Releases the components when the form closes.
         protected override void Dispose(bool disposing)
@@ -70,17 +72,20 @@ namespace BaobabRidge
             lblHousingValue = new Label();
             errorProvider = new ErrorProvider(components);
             dgvAnimals = new DataGridView();
+            txtSummaryReport = new TextBox();
+            lblLoadInfo = new Label();
             ((System.ComponentModel.ISupportInitialize)dgvAnimals).BeginInit();
             ((System.ComponentModel.ISupportInitialize)errorProvider).BeginInit();
             SuspendLayout();
 
             // dgvAnimals
             dgvAnimals.Name = "dgvAnimals";
-            dgvAnimals.Location = new Point(24, 610);
-            dgvAnimals.Size = new Size(580, 220);
+            dgvAnimals.Location = new Point(24, 635);
+            dgvAnimals.Size = new Size(1052, 195);
             dgvAnimals.Anchor = AnchorStyles.Top
                 | AnchorStyles.Left
                 | AnchorStyles.Right;
+            dgvAnimals.CellClick += dgvAnimals_CellClick;
             dgvAnimals.ReadOnly = true;
             dgvAnimals.AllowUserToAddRows = false;
             dgvAnimals.AllowUserToDeleteRows = false;
@@ -125,7 +130,7 @@ namespace BaobabRidge
             txtName.Name = "txtName";
             txtName.Location = new Point(190, 151);
             txtName.Size = new Size(410, 25);
-            txtName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtName.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             txtName.TabIndex = 3;
             txtName.AccessibleName = "Name";
             txtName.PlaceholderText = "Naledi";
@@ -141,7 +146,7 @@ namespace BaobabRidge
             txtSpecies.Name = "txtSpecies";
             txtSpecies.Location = new Point(190, 197);
             txtSpecies.Size = new Size(410, 25);
-            txtSpecies.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtSpecies.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             txtSpecies.TabIndex = 5;
             txtSpecies.AccessibleName = "Species";
             txtSpecies.PlaceholderText = "Serval";
@@ -157,7 +162,7 @@ namespace BaobabRidge
             txtAge.Name = "txtAge";
             txtAge.Location = new Point(190, 243);
             txtAge.Size = new Size(410, 25);
-            txtAge.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtAge.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             txtAge.TabIndex = 7;
             txtAge.AccessibleName = "Age (years)";
             txtAge.PlaceholderText = "Whole number: 0 to 100";
@@ -173,7 +178,7 @@ namespace BaobabRidge
             txtRecoveryScore.Name = "txtRecoveryScore";
             txtRecoveryScore.Location = new Point(190, 289);
             txtRecoveryScore.Size = new Size(410, 25);
-            txtRecoveryScore.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtRecoveryScore.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             txtRecoveryScore.TabIndex = 9;
             txtRecoveryScore.AccessibleName = "Recovery Score";
             txtRecoveryScore.PlaceholderText = "Whole number: 0 to 100";
@@ -230,7 +235,7 @@ namespace BaobabRidge
             lblFeedback.Text = "Enter the animal's details, then select Add Animal.";
             lblFeedback.Location = new Point(24, 445);
             lblFeedback.Size = new Size(580, 75);
-            lblFeedback.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            lblFeedback.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             lblFeedback.AccessibleName = "Save result";
 
             // lblStatusTitle
@@ -257,12 +262,30 @@ namespace BaobabRidge
             lblHousingValue.Location = new Point(190, 570);
             lblHousingValue.Size = new Size(410, 30);
 
+            // A persistent read-only report stays visible while using the form.
+            txtSummaryReport.Name = "txtSummaryReport";
+            txtSummaryReport.Location = new Point(630, 105);
+            txtSummaryReport.Size = new Size(446, 490);
+            txtSummaryReport.Multiline = true;
+            txtSummaryReport.ReadOnly = true;
+            txtSummaryReport.WordWrap = false;
+            txtSummaryReport.ScrollBars = ScrollBars.Both;
+            txtSummaryReport.Font = new Font("Consolas", 9);
+            txtSummaryReport.Text = "Select Generate Summary Report to view current statistics.";
+            txtSummaryReport.AccessibleName = "Summary report";
+            txtSummaryReport.TabIndex = 15;
+            lblLoadInfo.Name = "lblLoadInfo";
+            lblLoadInfo.Location = new Point(24, 607);
+            lblLoadInfo.Size = new Size(1052, 25);
+            Controls.Add(txtSummaryReport);
+            Controls.Add(lblLoadInfo);
+
             errorProvider.ContainerControl = this;
             errorProvider.BlinkStyle = ErrorBlinkStyle.NeverBlink;
             AutoScaleDimensions = new SizeF(7, 15);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(640, 860);
-            MinimumSize = new Size(656, 899);
+            ClientSize = new Size(1100, 860);
+            MinimumSize = new Size(1116, 899);
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Baobab Ridge - Animal Records";
             AcceptButton = btnAdd;
