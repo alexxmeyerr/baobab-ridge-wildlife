@@ -15,13 +15,6 @@ namespace BaobabRidge
         public event EventHandler AnimalAdded;
         public event EventHandler AnimalsChanged;
 
-        // Opens the form with the production file beside the executable.
-        public MainForm()
-        {
-            InitializeComponent();
-            InitializeMember3Feature();
-        }
-        
         //it ensures that the form loads animals when it opens
         public MainForm() : this(new FileManager())
         {
@@ -161,6 +154,39 @@ namespace BaobabRidge
             ClearInputs();
         }
 
+        private void btnSummaryReport_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                List<Animal> animals = fileManager.TryLoadAll(out int skipped);
+                SummaryReport report = SummaryReportService.Create(animals);
+                SummaryReportService.Save(report, fileManager.SummaryPath);
+
+                string message = report.ToText() + Environment.NewLine + Environment.NewLine
+                    + "Saved to: " + fileManager.SummaryPath;
+                if (skipped > 0)
+                {
+                    message += Environment.NewLine + Environment.NewLine
+                        + skipped + " malformed record(s) were excluded.";
+                }
+
+                MessageBox.Show(this, message, "Animal Rehabilitation Summary",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                ShowFileError("Cannot save summary.txt. Check file permissions.");
+            }
+            catch (DirectoryNotFoundException)
+            {
+                ShowFileError("Cannot find the folder for summary.txt.");
+            }
+            catch (IOException)
+            {
+                ShowFileError("Cannot save summary.txt. Close any program locking the file and try again.");
+            }
+        }
+
         // Announces a completed add so the shared form can refresh its animal grid.
         protected virtual void OnAnimalAdded()
         {
@@ -227,13 +253,6 @@ namespace BaobabRidge
             MessageBoxIcon.Warning
         );
         // Member 2 subscribes here once to refresh after any successful file change.
-        protected virtual void OnAnimalsChanged()
-        {
-            if (AnimalsChanged != null)
-            {
-                AnimalsChanged(this, EventArgs.Empty);
-            }
-        }
     }
     catch (UnauthorizedAccessException)
     {
@@ -286,9 +305,12 @@ namespace BaobabRidge
         dgvAnimals.Columns.Add("HousingUnit", "Housing Unit");
     }
 
-    private void OnAnimalAdded()
+    protected virtual void OnAnimalsChanged()
     {
-        AnimalAdded?.Invoke(this, EventArgs.Empty);
+        if (AnimalsChanged != null)
+        {
+            AnimalsChanged(this, EventArgs.Empty);
+        }
     }
 
 }

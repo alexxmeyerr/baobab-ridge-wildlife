@@ -31,6 +31,8 @@ namespace BaobabRidge.Services
 
         public string AnimalsPath { get => path; }
 
+        public string SummaryPath { get => Path.Combine(Path.GetDirectoryName(path) ?? AppContext.BaseDirectory, "summary.txt"); }
+
         // Read lines into a list, as in the lecturer's ReadWrite example.
         // A missing file has no records; the append operation will create it.
         private List<string> Read(out bool needsNewLine)

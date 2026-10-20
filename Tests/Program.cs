@@ -19,6 +19,7 @@ internal static partial class Program
             TestValidation();
             TestClassification();
             TestFiles(directory);
+            TestSummaryReport(directory);
             TestUpdateDeleteFiles(directory);
             Application.EnableVisualStyles();
             TestForm(directory, args.FirstOrDefault());
