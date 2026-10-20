@@ -23,6 +23,7 @@ namespace BaobabRidge
         private Button btnSearch;
         private Button btnSaveChanges;
         private Button btnDelete;
+        private Button btnSummaryReport;
         private Label lblFeedback;
         private Label lblStatusTitle;
         private Label lblStatusValue;
@@ -61,6 +62,7 @@ namespace BaobabRidge
             btnSearch = new Button();
             btnSaveChanges = new Button();
             btnDelete = new Button();
+            btnSummaryReport = new Button();
             lblFeedback = new Label();
             lblStatusTitle = new Label();
             lblStatusValue = new Label();
@@ -214,6 +216,15 @@ namespace BaobabRidge
             btnDelete.TabIndex = 13;
             btnDelete.Enabled = false;
             btnDelete.Click += btnDelete_Click;
+
+            // btnSummaryReport
+            btnSummaryReport.Name = "btnSummaryReport";
+            btnSummaryReport.Text = "&Generate Summary Report";
+            btnSummaryReport.Location = new Point(24, 390);
+            btnSummaryReport.Size = new Size(150, 38);
+            btnSummaryReport.TabIndex = 14;
+            btnSummaryReport.Click += btnSummaryReport_Click;
+
             // lblFeedback
             lblFeedback.Name = "lblFeedback";
             lblFeedback.Text = "Enter the animal's details, then select Add Animal.";
@@ -271,6 +282,7 @@ namespace BaobabRidge
             Controls.Add(btnSearch);
             Controls.Add(btnSaveChanges);
             Controls.Add(btnDelete);
+            Controls.Add(btnSummaryReport);
             Controls.Add(lblFeedback);
             Controls.Add(lblStatusTitle);
             Controls.Add(lblStatusValue);
