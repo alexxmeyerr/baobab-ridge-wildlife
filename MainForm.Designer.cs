@@ -249,7 +249,7 @@ namespace BaobabRidge
             // 
             // lblStatusValue
             // 
-            lblStatusValue.Location = new Point(190, 530);
+            lblStatusValue.Location = new Point(185, 530);
             lblStatusValue.Name = "lblStatusValue";
             lblStatusValue.Size = new Size(410, 30);
             lblStatusValue.TabIndex = 20;
@@ -265,7 +265,7 @@ namespace BaobabRidge
             // 
             // lblHousingValue
             // 
-            lblHousingValue.Location = new Point(190, 570);
+            lblHousingValue.Location = new Point(185, 570);
             lblHousingValue.Name = "lblHousingValue";
             lblHousingValue.Size = new Size(410, 30);
             lblHousingValue.TabIndex = 22;
@@ -288,7 +288,7 @@ namespace BaobabRidge
             dgvAnimals.ReadOnly = true;
             dgvAnimals.RowHeadersVisible = false;
             dgvAnimals.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dgvAnimals.Size = new Size(1052, 195);
+            dgvAnimals.Size = new Size(1052, 136);
             dgvAnimals.TabIndex = 23;
             dgvAnimals.CellClick += dgvAnimals_CellClick;
             // 
@@ -296,12 +296,12 @@ namespace BaobabRidge
             // 
             txtSummaryReport.AccessibleName = "Summary report";
             txtSummaryReport.Font = new Font("Consolas", 9F);
-            txtSummaryReport.Location = new Point(630, 105);
+            txtSummaryReport.Location = new Point(606, 102);
             txtSummaryReport.Multiline = true;
             txtSummaryReport.Name = "txtSummaryReport";
             txtSummaryReport.ReadOnly = true;
             txtSummaryReport.ScrollBars = ScrollBars.Both;
-            txtSummaryReport.Size = new Size(446, 490);
+            txtSummaryReport.Size = new Size(452, 297);
             txtSummaryReport.TabIndex = 15;
             txtSummaryReport.Text = "Select Generate Summary Report to view current statistics.";
             txtSummaryReport.WordWrap = false;

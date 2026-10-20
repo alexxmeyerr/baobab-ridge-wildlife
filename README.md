@@ -9,11 +9,8 @@ for recording wildlife rehabilitation and producing a text summary.
 | --- | --- | --- | --- |
 | 1 | Alexander Meyer | 604082 | Add Animal, validation and shared classification |
 | 2 | Golokile Phomolo Seleke | 605189 | View Animals and file loading |
-| 3 | **Full name still required** (GitHub: Max20031009) | **Required** | Search, update and delete |
-| 4 | **Full name still required** (GitHub: Dean-lab-ui) | **Required** | Summary report, starter data, README and GitHub management |
-
-The missing details must be completed by the group before submission. GitHub usernames
-are not a substitute for student names and numbers.
+| 3 | Willem Abraham Jacobus Kruger | 600221 | Search, update and delete |
+| 4 | Dean Martin Hendrikz | 603341 | Summary report, starter data, README and GitHub management |
 
 ## Build and run
 
@@ -156,7 +153,6 @@ all three grid refresh paths, exact summary format, empty data, and summary over
   or updating the starter file; a newer starter can replace an older runtime copy.
 - The fixed layout needs a sufficiently large Windows desktop; smaller screens or
   high display scaling may require a larger display or lower scaling for presentation.
-- The README still needs Members 3 and 4's full names and student numbers.
 - Every member must verify their own real commits, dates, merged pull request and
   understanding of the code. An integration fix cannot supply another person's
   contribution history. Never backdate commits or attribute AI work to a student.
