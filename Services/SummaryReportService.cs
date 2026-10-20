@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace BaobabRidge.Services
@@ -12,73 +11,76 @@ namespace BaobabRidge.Services
         public int TotalAnimals { get; private set; }
         public double AverageAge { get; private set; }
         public double AverageRecoveryScore { get; private set; }
-        public int ReadyForRelease { get; private set; }
-        public int NeedsMonitoring { get; private set; }
-        public int CriticalCare { get; private set; }
+        public int Critical { get; private set; }
+        public int Serious { get; private set; }
+        public int Stable { get; private set; }
+        public int Recovering { get; private set; }
+        public int ReleaseReady { get; private set; }
+        public DateTime GeneratedAt { get; private set; }
 
-        internal SummaryReport(IList<Animal> animals)
+        // Adds totals and counts the status already calculated by AnimalClassifier.
+        internal SummaryReport(IEnumerable<Animal> animals)
         {
-            TotalAnimals = animals.Count;
-            if (TotalAnimals == 0)
-            {
-                return;
-            }
-
-            AverageAge = animals.Average(animal => animal.Age);
-            AverageRecoveryScore = animals.Average(animal => animal.RecoveryScore);
-
+            GeneratedAt = DateTime.Now;
+            int totalAge = 0;
+            int totalScore = 0;
             foreach (Animal animal in animals)
             {
-                if (animal.Status == "Release-Ready")
-                {
-                    ReadyForRelease++;
-                }
-                else if (animal.Status == "Critical")
-                {
-                    CriticalCare++;
-                }
-                else
-                {
-                    NeedsMonitoring++;
-                }
+                TotalAnimals++;
+                totalAge += animal.Age;
+                totalScore += animal.RecoveryScore;
+                if (animal.Status == "Critical") Critical++;
+                else if (animal.Status == "Serious") Serious++;
+                else if (animal.Status == "Stable") Stable++;
+                else if (animal.Status == "Recovering") Recovering++;
+                else if (animal.Status == "Release-Ready") ReleaseReady++;
+            }
+            if (TotalAnimals > 0)
+            {
+                AverageAge = (double)totalAge / TotalAnimals;
+                AverageRecoveryScore = (double)totalScore / TotalAnimals;
             }
         }
 
+        // Uses the required layout, two decimal places, and N/A for empty data.
         public string ToText()
         {
             StringBuilder report = new StringBuilder();
-            report.AppendLine("===== Animal Rehabilitation Summary =====");
-            report.AppendLine();
-            report.AppendLine("Total Animals: " + TotalAnimals.ToString(CultureInfo.InvariantCulture));
-            report.AppendLine("Average Age: " + AverageAge.ToString("0.0", CultureInfo.InvariantCulture) + " Years");
-            report.AppendLine("Average Recovery Score: " + AverageRecoveryScore.ToString("0.0", CultureInfo.InvariantCulture) + "%");
-            report.AppendLine("Ready for Release: " + ReadyForRelease.ToString(CultureInfo.InvariantCulture));
-            report.AppendLine("Needs Monitoring: " + NeedsMonitoring.ToString(CultureInfo.InvariantCulture));
-            report.AppendLine("Critical Care: " + CriticalCare.ToString(CultureInfo.InvariantCulture));
-            return report.ToString().TrimEnd();
+            report.AppendLine("BAOBAB RIDGE WILDLIFE REHABILITATION CENTRE");
+            report.AppendLine("ANIMAL SUMMARY REPORT");
+            report.AppendLine("Generated: " + GeneratedAt.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture));
+            report.AppendLine("----------------------------------------");
+            report.AppendLine("Total animals:            " + TotalAnimals.ToString(CultureInfo.InvariantCulture));
+            report.AppendLine("Average age (years):      " + (TotalAnimals == 0 ? "N/A" : AverageAge.ToString("F2", CultureInfo.InvariantCulture)));
+            report.AppendLine("Average recovery score:   " + (TotalAnimals == 0 ? "N/A" : AverageRecoveryScore.ToString("F2", CultureInfo.InvariantCulture)));
+            report.AppendLine("----------------------------------------");
+            report.AppendLine("Animals per status:");
+            report.AppendLine("  Critical:               " + Critical.ToString(CultureInfo.InvariantCulture));
+            report.AppendLine("  Serious:                " + Serious.ToString(CultureInfo.InvariantCulture));
+            report.AppendLine("  Stable:                 " + Stable.ToString(CultureInfo.InvariantCulture));
+            report.AppendLine("  Recovering:             " + Recovering.ToString(CultureInfo.InvariantCulture));
+            report.Append("  Release-Ready:          " + ReleaseReady.ToString(CultureInfo.InvariantCulture));
+            return report.ToString();
         }
     }
 
     public static class SummaryReportService
     {
+        // Creates a report from the valid records most recently read from the file.
         public static SummaryReport Create(IEnumerable<Animal> animals)
         {
-            if (animals == null)
-            {
-                throw new ArgumentNullException(nameof(animals));
-            }
-
-            return new SummaryReport(animals.ToList());
+            if (animals == null) throw new ArgumentNullException(nameof(animals));
+            return new SummaryReport(animals);
         }
 
+        // Overwrites the previous UTF-8 report; the form handles file errors.
         public static void Save(SummaryReport report, string path)
         {
-            if (report == null)
+            if (report == null) throw new ArgumentNullException(nameof(report));
+            using (StreamWriter writer = new StreamWriter(path, false, new UTF8Encoding(false)))
             {
-                throw new ArgumentNullException(nameof(report));
+                writer.WriteLine(report.ToText());
             }
-
-            File.WriteAllText(path, report.ToText() + Environment.NewLine, new UTF8Encoding(false));
         }
     }
 }
