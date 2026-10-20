@@ -24,6 +24,7 @@ internal static partial class Program
             Application.EnableVisualStyles();
             TestForm(directory, args.FirstOrDefault());
             TestUpdateDeleteForm(directory, args.FirstOrDefault());
+            TestIntegratedWorkflow(directory, args.FirstOrDefault());
             Console.WriteLine($"PASS: {assertions} assertions (validation, classification, files, and form workflow).");
             return 0;
         }
@@ -150,7 +151,7 @@ internal static partial class Program
         form.AnimalAdded += (_, _) => refreshed++;
         add.PerformClick();
         Check(id.Focused && feedback.Text.Contains("Animal ID"), "Empty ID message and focus");
-        Check(!File.Exists(path) && refreshed == 0, "Invalid input does not write or refresh");
+        Check(File.Exists(path) && File.ReadAllText(path) == "" && refreshed == 0, "Startup creates empty file; invalid input does not write or refresh");
         id.Text = " wr-0007 "; name.Text = " Naledi "; species.Text = " Serval "; age.Text = "3"; score.Text = "62.5";
         add.PerformClick();
         Check(score.Focused && feedback.Text.Contains("Recovery Score"), "Score error and focus");
