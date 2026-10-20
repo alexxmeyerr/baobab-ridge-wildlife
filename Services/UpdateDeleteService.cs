@@ -10,13 +10,16 @@ namespace BaobabRidge.Services
     {
         private string filePath;
 
+        // Uses the shared file beside the executable in the running application.
         public UpdateDeleteService() : this(new FileManager().AnimalsPath) { }
 
+        // Accepts a separate file path for isolated tests.
         public UpdateDeleteService(string animalsPath)
         {
             filePath = animalsPath;
         }
 
+        // Reads every line so rewriting can preserve unrelated records and their order.
         private List<string> ReadLines()
         {
             List<string> lines = new List<string>();
@@ -47,6 +50,7 @@ namespace BaobabRidge.Services
             return found;
         }
 
+        // Validates the five inputs and recalculates the two derived fields.
         private bool TryReadAnimal(string line, out Animal animal)
         {
             animal = null;
@@ -57,6 +61,7 @@ namespace BaobabRidge.Services
                 out animal, out error);
         }
 
+        // Returns one matching animal, or null when the ID is absent.
         public Animal FindAnimal(string animalId)
         {
             List<string> lines = ReadLines();
@@ -68,6 +73,7 @@ namespace BaobabRidge.Services
             return animal;
         }
 
+        // Returns valid records in file order without changing malformed lines.
         public List<Animal> GetAllAnimals()
         {
             List<Animal> animals = new List<Animal>();
@@ -79,11 +85,13 @@ namespace BaobabRidge.Services
             return animals;
         }
 
+        // Checks the ID case-insensitively and refuses ambiguous duplicates.
         public bool AnimalIdExists(string animalId)
         {
             return FindIndex(ReadLines(), animalId) != -1;
         }
 
+        // Replaces only the matching record and leaves its original position unchanged.
         public bool UpdateAnimal(Animal updatedAnimal)
         {
             List<string> lines = ReadLines();
@@ -97,6 +105,7 @@ namespace BaobabRidge.Services
             return true;
         }
 
+        // Removes one unambiguous valid record while preserving the remaining lines.
         public bool DeleteAnimal(string animalId)
         {
             List<string> lines = ReadLines();
@@ -110,6 +119,7 @@ namespace BaobabRidge.Services
             return true;
         }
 
+        // Replaces the original only after all lines have been written successfully.
         private void WriteLines(List<string> lines)
         {
             // Finish writing a temporary file before replacing the original.

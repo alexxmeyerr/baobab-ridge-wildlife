@@ -11,7 +11,7 @@ controls the validation rules, file format, classification bands, and append beh
 | AfternoonFileHandeling / Updated | Separate presentation and file responsibilities; build saved text by joining object properties. |
 | StudentForm: Form1.cs | Keep a handler object on the form and use named button click handlers. |
 | Employee Management: Form1.cs | Capture text box values into local variables; use try/catch around saving. |
-| DataSetsAndDataTables / DVGandListView | Reviewed for the form/handler pattern. Their database and grid features belong to other members' scope. |
+| DataSetsAndDataTables / DVGandListView | Reviewed for the form/handler pattern. The integrated grid uses a read-only DataGridView; database storage is not used. |
 
 ## Read the Add flow
 
@@ -21,7 +21,7 @@ controls the validation rules, file format, classification bands, and append beh
 4. FileManager.Read reads the current lines using FileStream and StreamReader.
 5. TryAppend uses foreach and Split to reject an existing ID.
 6. FileMode.Append and StreamWriter write one new record.
-7. The form displays success, clears inputs, and raises AnimalAdded for the future grid.
+7. The form displays success, clears inputs, and raises AnimalsChanged to refresh the integrated grid (and AnimalAdded for compatibility).
 
 ## Small differences required by this project
 
@@ -41,4 +41,4 @@ controls the validation rules, file format, classification bands, and append beh
   without learning a different interface. The separate test runner is verification
   support; it is not the application code to study first.
 
-No database is added. Member 1 still implements only Add Animal and its shared helpers.
+No database is added. Member 1 implements Add Animal and its shared helpers; the final application integrates the other members' View, Update/Delete and Summary features.
