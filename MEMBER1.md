@@ -6,8 +6,8 @@ each method before presenting or adapting it.
 ## Run your feature
 
 Open `BaobabRidge.csproj` in Visual Studio and press F5. The initial form is the Add
-Animal screen. A useful test entry is `wr-0007`, `Naledi`, `Serval`, `3`, `62`.
-After Add, expect `WR-0007`, `Recovering`, and `Outdoor Enclosure` in the saved record.
+Animal screen. A useful test entry is `wr-0101`, `Naledi`, `Serval`, `3`, `62`.
+After Add, expect `WR-0101`, `Recovering`, and `Outdoor Enclosure` in the saved record.
 The runtime file is under `bin/Debug/net8.0-windows/animals.txt` in a normal Debug build.
 
 ## What each file does
@@ -25,7 +25,7 @@ The runtime file is under `bin/Debug/net8.0-windows/animals.txt` in a normal Deb
 ## Presentation outline (about three minutes)
 
 1. Explain the five inputs and that the user never enters status or housing.
-2. Enter the example above with lowercase `wr-0007` and spaces around the name.
+2. Enter the example above with lowercase `wr-0101` and spaces around the name.
    Click Add. Show the uppercase ID, classification, confirmation, and cleared inputs.
 3. Try adding the same ID again. Explain that the service reads the current file on
    every save, so duplicates are rejected even after restarting the program.
@@ -54,30 +54,20 @@ The runtime file is under `bin/Debug/net8.0-windows/animals.txt` in a normal Deb
 - What happens at 79 and 80? Recovering changes to Release-Ready; the housing changes too.
 - How does duplicate checking work? Read the current file, go through its lines,
   split each line at `|`, and compare the first field with the new ID.
-- What does `true` in the StreamWriter constructor mean? Append to the file instead
-  of replacing its contents.
+- Why `FileMode.Append`? It adds to the file instead of replacing old records.
+- What does `false` in `new UTF8Encoding(false)` mean? Do not write a UTF-8 byte-order
+  mark. It does not control append mode.
 - What does `out` mean? The method assigns a value to a variable supplied by its
   caller. `Classify` fills in both `status` and `housingUnit`.
 - What happens after a file error? The inputs stay filled and the user can correct the
   file problem and retry; no success notification or refresh event is raised.
 
-## Handoff to the group
+## Shared integration
 
-Member 2: add the DataGridView and startup loader. Subscribe to `AnimalAdded` in the
-form constructor after the grid is initialized, for example with a handler that calls
-your `RefreshGrid` method. Refresh from disk after each successful Add. Keep loading
-and skipped-line reporting in your own feature. Do not raise duplicate notifications
-from both your event handler and the Add handler.
-
-Member 3: load the same input boxes in edit mode, make the ID read-only, and call
-`AnimalValidator.TryCreate` with the original ID. This builds a fresh Animal and calls
-the same classifier even when the score is unchanged. Use your update/rewrite method,
-not `TryAppend`, which intentionally rejects existing IDs. Keep Add disabled during
-editing and restore Add mode after save or Clear. `Animal.AnimalId` cannot be changed.
-
-Member 4: supply starter records in `Data/animals.txt`, implement your summary service,
-and fill in the real team details. The project already copies `Data/animals.txt` beside
-the executable with Copy if newer. Do not commit runtime `summary.txt`.
+The grid and summary are now integrated. `AnimalsChanged` reloads the grid once after
+Add, Update or Delete. `AnimalAdded` is retained for compatibility, but the grid does
+not also subscribe to it. The update workflow reuses your validator and classifier.
+The summary uses the same file loader and counts the five existing statuses.
 
 ## Manual checks before merging
 
@@ -112,13 +102,11 @@ are separate, following the lecture examples. It still handles locked and read-o
 files. See `CLASS-EXAMPLES.md` for the source examples and the assignment-specific
 checks retained in this rewrite.
 
-## Git handoff
+## Git and presentation
 
-Member 1 work is published on `feature/add-animal` for review through a pull request.
-Clone the GitHub repository and switch to that branch to work on the shared version.
-The earlier local export has a separate initial Git history; do not force-push it
-over the shared repository.
+The original Member 1 feature was reviewed and merged through pull requests.
+Use the latest main branch for the complete application. Save local changes before
+pulling. Never force-push an older local export over the shared repository.
 
-Commit real changes on the days you work. This implementation does not satisfy the
-three-distinct-days requirement by itself; do not change commit dates to simulate work.
-Use a pull request and teammate review before merging the feature into `main`.
+Explain changes you understand and acknowledge the assistance disclosure above.
+Commit real work on its actual dates; do not alter dates to simulate contributions.
