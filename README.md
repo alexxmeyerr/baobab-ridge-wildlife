@@ -18,8 +18,8 @@ Use Windows with the .NET 8 SDK (or a newer SDK with .NET 8 desktop targeting su
 For Visual Studio, install the .NET desktop development workload, open
 `BaobabRidge.sln` as a solution, restore dependencies, build, and press F5.
 Double-click MainForm.cs in Solution Explorer for the visual form designer.
-Use Ctrl+Alt+X for Toolbox and F4 for Properties. See FORM-DESIGNER.md for the
-walkthrough. Opening an individual code file or using Open Folder does not
+Use Ctrl+Alt+X for Toolbox and F4 for Properties.
+Opening an individual code file or using Open Folder does not
 open the visual designer.
 
 From a terminal in a fresh clone:
@@ -142,7 +142,6 @@ Tests use disposable files. They cover validation, every classification boundary
 duplicates after restart, UTF-8, missing files, malformed records, record order,
 locked/read-only failures, shared edit mode, failed search preservation, cancellation,
 all three grid refresh paths, exact summary format, empty data, and summary overwrite.
-`PRESENTATION.md` contains the demonstration outline and questions for all members.
 
 ## Limitations and submission checks
 
