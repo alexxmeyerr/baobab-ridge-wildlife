@@ -19,8 +19,11 @@ are not a substitute for student names and numbers.
 
 Use Windows with the .NET 8 SDK (or a newer SDK with .NET 8 desktop targeting support).
 For Visual Studio, install the .NET desktop development workload, open
-`BaobabRidge.csproj` as a project, restore dependencies, build, and press F5.
-Opening an individual `.cs` file does not open the runnable project.
+`BaobabRidge.sln` as a solution, restore dependencies, build, and press F5.
+Double-click MainForm.cs in Solution Explorer for the visual form designer.
+Use Ctrl+Alt+X for Toolbox and F4 for Properties. See FORM-DESIGNER.md for the
+walkthrough. Opening an individual code file or using Open Folder does not
+open the visual designer.
 
 From a terminal in a fresh clone:
 
