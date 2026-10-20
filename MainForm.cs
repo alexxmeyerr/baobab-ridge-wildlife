@@ -266,6 +266,7 @@ namespace BaobabRidge
             DataGridViewSelectionMode.FullRowSelect;
 
         dgvAnimals.MultiSelect = false;
+        dgvAnimals.ReadOnly = true;
 
         dgvAnimals.AutoSizeColumnsMode =
             DataGridViewAutoSizeColumnsMode.Fill;
