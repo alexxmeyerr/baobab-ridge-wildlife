@@ -1,107 +1,169 @@
 # Baobab Ridge Wildlife Rehabilitation Records System
 
-C# Windows Forms project for PRG2782, targeting .NET 8.
+PRG2782 group project, Belgium Campus, 2026. A C# Windows Forms application
+for recording wildlife rehabilitation and producing a text summary.
 
 ## Team
 
-Fill in all member names and student numbers before submission.
-
 | Member | Name | Student number | Feature |
 | --- | --- | --- | --- |
-| 1 | To complete | To complete | Add Animal and validation |
-| 2 | To complete | To complete | View Animals |
-| 3 | To complete | To complete | Update and Delete |
-| 4 | To complete | To complete | Summary and GitHub management |
+| 1 | Alexander Meyer | 604082 | Add Animal, validation and shared classification |
+| 2 | Golokile Phomolo Seleke | 605189 | View Animals and file loading |
+| 3 | **Full name still required** (GitHub: Max20031009) | **Required** | Search, update and delete |
+| 4 | **Full name still required** (GitHub: Dean-lab-ui) | **Required** | Summary report, starter data, README and GitHub management |
+
+The missing details must be completed by the group before submission. GitHub usernames
+are not a substitute for student names and numbers.
 
 ## Build and run
 
-Open `BaobabRidge.csproj` in Visual Studio with the .NET desktop development workload and .NET 8 support. Press F5.
+Use Windows with the .NET 8 SDK (or a newer SDK with .NET 8 desktop targeting support).
+For Visual Studio, install the .NET desktop development workload, open
+`BaobabRidge.csproj` as a project, restore dependencies, build, and press F5.
+Opening an individual `.cs` file does not open the runnable project.
 
-Alternatively, on Windows with a .NET 8 or newer SDK:
+From a terminal in a fresh clone:
 
 ```powershell
-dotnet build BaobabRidge.csproj
-dotnet run --project BaobabRidge.csproj
+git clone https://github.com/alexxmeyerr/baobab-ridge-wildlife.git
+cd baobab-ridge-wildlife
+dotnet restore BaobabRidge.csproj
+dotnet build BaobabRidge.csproj -c Release
+dotnet run --project BaobabRidge.csproj -c Release
 ```
 
-## Member 1 feature
+No database, connection string, machine-specific path or third-party package is needed.
+The project copies `Data/animals.txt` to `bin/Release/net8.0-windows/animals.txt`
+(or the corresponding Debug output folder). The running application always uses
+`animals.txt` and `summary.txt` beside its executable.
 
-The `feature/add-animal` branch implements Add Animal. Enter Animal ID, Name,
-Species, Age, and Recovery Score, then click **Add Animal**. A successful save
-clears the inputs and displays the animal's calculated status and housing unit.
-An invalid entry names the field and focuses it. File errors leave your input
-available for a retry.
+## Features
 
-- IDs are trimmed, uppercased, formatted as `WR-0007`, and unique in the current file.
-- Names and species are trimmed, 1-30 characters, and cannot contain pipes or line breaks.
-- Age and score accept decimal digits representing whole numbers from 0 to 100.
-- `AnimalClassifier.Classify` is the one method that calculates both derived fields.
-- Add appends a UTF-8 record while preserving all existing bytes.
-- `MainForm.AnimalAdded` lets Member 2 refresh the grid after successful saves.
+- **Add:** enter an ID, name, species, age and recovery score. IDs are trimmed,
+  uppercased and checked against the current file for duplicates before appending.
+  Name and species are trimmed, required, 1–30 characters and cannot contain `|`
+  or line breaks. Age and score must be whole numbers from 0 to 100.
+- **View:** startup loads valid records into a read-only grid in file order.
+  Missing `animals.txt` is created empty. Malformed lines are skipped and counted
+  in one load message below the form. Sorting is disabled to preserve file order.
+- **Update:** click a row or search by ID. Edit Mode locks the ID, disables Add,
+  and enables Save Changes. Saving revalidates and reclassifies the animal,
+  replaces only that record, refreshes the grid, and clears the inputs.
+  A failed search preserves typed input. Clear cancels editing.
+- **Delete:** select a row or search first. The confirmation contains ID and name,
+  with No selected by default. Yes removes that record, refreshes the grid and
+  clears the form. No or a file error retains the record.
+- **Summary:** Generate Summary Report rereads valid records from disk, displays
+  a persistent read-only report, and overwrites `summary.txt`. It includes a local
+  generation timestamp, totals, two-decimal averages and all five status counts.
+  An empty file produces zero counts and N/A averages.
 
-## Files and locations
+File errors appear in the form and retain input for retry. Updates and deletes
+write a temporary file before replacing the original, preserving unrelated lines.
 
-`animals.txt` lives beside the running executable, regardless of the working directory.
-`Data/animals.txt` is currently empty and uses **Copy if newer**, with its output
-name set to `animals.txt`. Member 4 can replace the source copy with the required
-eight or more starter records before final integration. A missing runtime file
-is created when the first valid animal is added.
+## Classification
 
-Each record has seven pipe-separated fields, no header, and no blank lines:
+Only `AnimalClassifier.Classify` assigns status and housing, including during update.
+The user never types these two values.
+
+| Recovery score | Status | Housing unit |
+| --- | --- | --- |
+| 0–19 | Critical | Intensive Care Unit |
+| 20–39 | Serious | High-Dependency Ward |
+| 40–59 | Stable | Recovery Ward |
+| 60–79 | Recovering | Outdoor Enclosure |
+| 80–100 | Release-Ready | Pre-Release Camp |
+
+## Text file formats
+
+`animals.txt` is UTF-8, one animal per line, seven pipe-separated fields, with no header:
 
 ```text
-WR-0007|Naledi|Serval|3|62|Recovering|Outdoor Enclosure
+AnimalID|Name|Species|Age|RecoveryScore|Status|HousingUnit
 ```
 
-The field order is ID, Name, Species, Age, Score, Status, Housing Unit.
-Member 4's `summary.txt` will be a generated text report beside the executable,
-overwritten each time and excluded from Git. Summary generation is not implemented
-on this branch.
+The field-order line above is documentation, not a record. A real record is:
+
+```text
+WR-0002|Naledi|Serval|3|62|Recovering|Outdoor Enclosure
+```
+
+IDs must be `WR-` followed by exactly four ordinary digits. The starter file
+contains eight unique animals across all five statuses. Add preserves old records.
+Update and delete preserve the order of all remaining records. Loading recalculates
+status and housing from the score, so stale stored derived values are corrected
+in memory; saving an edited record writes the correct derived values.
+
+`summary.txt` is UTF-8 text and is replaced each time a report is generated.
+For the supplied eight records its layout is:
+
+```text
+BAOBAB RIDGE WILDLIFE REHABILITATION CENTRE
+ANIMAL SUMMARY REPORT
+Generated: 2026-10-20 18:00
+----------------------------------------
+Total animals:            8
+Average age (years):      6.75
+Average recovery score:   52.62
+----------------------------------------
+Animals per status:
+  Critical:               2
+  Serious:                1
+  Stable:                 1
+  Recovering:             1
+  Release-Ready:          3
+```
+
+The generation time varies. Averages use a decimal point regardless of computer locale.
+Generated `summary.txt`, `bin/`, `obj/`, `.vs/` and user settings are ignored by Git.
+
+## Source structure
+
+`MainForm.cs` connects Add, View, Summary and refresh events; `MainForm.Member3.cs`
+contains the search/edit/delete handlers for the same form. `Animal.cs` stores
+validated animal details. `Services/AnimalValidator.cs` checks user input,
+`AnimalClassifier.cs` assigns the two derived values, `FileManager.cs` reads and
+appends records, `UpdateDeleteService.cs` rewrites selected records, and
+`SummaryReportService.cs` calculates and formats the report.
+
+The application follows the supplied class examples: ordinary classes and properties,
+separate form/file responsibilities, named event handlers, lists, loops,
+`FileStream`, `StreamReader`, `StreamWriter`, `using`, and friendly `try/catch` handling.
 
 ## Tests
 
-Run on Windows with the .NET desktop SDK/runtime:
+On Windows, run the dependency-free regression runner:
 
 ```powershell
-dotnet run --project Tests/BaobabRidge.Tests.csproj
+dotnet run --project Tests/BaobabRidge.Tests.csproj -c Release
 ```
 
-The test runner requires no external packages. It checks field validation,
-classification boundaries, file preservation, duplicate IDs across instances,
-UTF-8 names, missing/locked/read-only files, and the real form button handlers.
-It briefly opens a test form and uses temporary data rather than your saved records.
+Tests use disposable files. They cover validation, every classification boundary,
+duplicates after restart, UTF-8, missing files, malformed records, record order,
+locked/read-only failures, shared edit mode, failed search preservation, cancellation,
+all three grid refresh paths, exact summary format, empty data, and summary overwrite.
+`PRESENTATION.md` contains the demonstration outline and questions for all members.
 
-## Integration and limitations
+## Limitations and submission checks
 
-Add and Member 3's Update/Delete now share `MainForm`, the `Animal` model,
-validation, classification, and one runtime file. View, Summary, and starter
-records remain to be integrated. No DataGridView is included yet. See
-`INTEGRATION.md` for the combined workflow and Member 2's refresh connection.
-The UI layout is constructed in code in `MainForm.Designer.cs`.
+- Use one running application instance. Simultaneous writes from multiple instances
+  are not coordinated. Ambiguous duplicate IDs in hand-edited data cannot be edited
+  until the file is corrected.
+- Starter data is copied if newer. Back up runtime records before replacing a build
+  or updating the starter file; a newer starter can replace an older runtime copy.
+- The fixed layout needs a sufficiently large Windows desktop; smaller screens or
+  high display scaling may require a larger display or lower scaling for presentation.
+- The README still needs Members 3 and 4's full names and student numbers.
+- Every member must verify their own real commits, dates, merged pull request and
+  understanding of the code. An integration fix cannot supply another person's
+  contribution history. Never backdate commits or attribute AI work to a student.
+- Clone into a new empty folder and demonstrate all five features together before
+  submitting the GitHub URL and clean project ZIP.
 
-The uniqueness scan reserves IDs even in malformed existing lines. Member 2 should
-handle malformed loading and report the skipped-line count. This simpler version
-is designed for one running instance of the application: checking IDs and appending
-are separate steps, so do not run two copies against the same file at once.
+## Assistance disclosure
 
-## Straightforward C# style
-
-The application uses private backing fields and properties like the lecturer's
-`Student` class, ordinary constructors, brace-based namespaces, explicit variable
-types, loops, `if/else` statements, and traditional `using` blocks. The ID check
-uses a loop instead of a regular expression. Classification sets two `out` string
-parameters instead of returning a tuple. File handling follows the lecturer's examples: `FileStream`, `StreamReader`,
-`List<string>`, a `while` loop to read lines, a `foreach` loop to check IDs, and
-`StreamWriter` with `FileMode.Append`. Streams are enclosed in `using` blocks.
-
-The form layout uses normal control properties such as `Location`, `Size`, and
-`Text`, with named click handlers. `Tests/` is a separate verification program;
-start with the application files when preparing your presentation.
-See `CLASS-EXAMPLES.md` for the exact examples used and how they map to this project.
-
-Rebuilding may refresh the runtime data if `Data/animals.txt` becomes newer. Back up
-runtime records before intentionally changing the starter file.
-
-Member names, student numbers, three-day contribution history, and merged feature
-pull requests must still be completed by the group. See `MEMBER1.md` for a manual
-demo and testing checklist.
+This project includes code, integration changes, tests and documentation prepared
+with OpenAI Codex assistance. The supplied lecturer examples informed its structure.
+This work must not be represented as entirely student-authored. The assignment's
+academic-integrity rules still apply; the group must confirm permitted use with the
+lecturer, review and understand the implementation, and describe contributions honestly.

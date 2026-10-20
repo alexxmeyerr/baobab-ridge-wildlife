@@ -1,0 +1,8 @@
+WR-0001|Thabo|Penguin|4|85|Release-Ready|Pre-Release Camp
+WR-0002|Naledi|Serval|3|62|Recovering|Outdoor Enclosure
+WR-0003|Lerato|Meerkat|2|45|Stable|Recovery Ward
+WR-0004|Zola|Eagle|12|19|Critical|Intensive Care Unit
+WR-0005|Kabelo|Tortoise|20|30|Serious|High-Dependency Ward
+WR-0006|Pula|Otter|5|80|Release-Ready|Pre-Release Camp
+WR-0007|Mpho|Hedgehog|1|0|Critical|Intensive Care Unit
+WR-0008|Lesedi|Owl|7|100|Release-Ready|Pre-Release Camp

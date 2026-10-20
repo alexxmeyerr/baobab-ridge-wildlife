@@ -31,6 +31,19 @@ namespace BaobabRidge.Services
 
         public string AnimalsPath { get => path; }
 
+        public string SummaryPath { get => Path.Combine(Path.GetDirectoryName(path) ?? AppContext.BaseDirectory, "summary.txt"); }
+
+        // OpenOrCreate creates a missing empty file without changing an existing file.
+        public void EnsureFileExists()
+        {
+            if (!File.Exists(path))
+            {
+                using (FileStream file = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write))
+                {
+                }
+            }
+        }
+
         // Read lines into a list, as in the lecturer's ReadWrite example.
         // A missing file has no records; the append operation will create it.
         private List<string> Read(out bool needsNewLine)
@@ -104,47 +117,48 @@ namespace BaobabRidge.Services
                 + animal.RecoveryScore.ToString(CultureInfo.InvariantCulture) + "|"
                 + animal.Status + "|" + animal.HousingUnit;
         }
-        
-    
-public List<Animal> TryLoadAll(out int skipped)
-{
-    List<Animal> animals = new List<Animal>();
-    skipped = 0;
 
-    List<string> lines = Read(out _);
 
-    foreach (string line in lines)
-    {
-        string[] fields = line.Split('|');
-
-        
-        if (fields.Length != 7)
+        // Validates each seven-field record and retains the original file order.
+        public List<Animal> TryLoadAll(out int skipped)
         {
-            skipped++;
-            continue;
+            List<Animal> animals = new List<Animal>();
+            skipped = 0;
+
+            List<string> lines = Read(out _);
+
+            foreach (string line in lines)
+            {
+                string[] fields = line.Split('|');
+
+
+                if (fields.Length != 7)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                Animal animal;
+                ValidationError error;
+
+                if (!AnimalValidator.TryCreate(
+                    fields[0],
+                    fields[1],
+                    fields[2],
+                    fields[3],
+                    fields[4],
+                    out animal,
+                    out error))
+                {
+                    skipped++;
+                    continue;
+                }
+
+                animals.Add(animal);
+            }
+
+            return animals;
         }
-
-        Animal animal;
-        ValidationError error;
-
-        if (!AnimalValidator.TryCreate(
-            fields[0],
-            fields[1],
-            fields[2],
-            fields[3],
-            fields[4],
-            out animal,
-            out error))
-        {
-            skipped++;
-            continue;
-        }
-
-        animals.Add(animal);
-    }
-
-    return animals;
-}
 
     }
 }
